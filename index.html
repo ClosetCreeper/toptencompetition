@@ -2,53 +2,250 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Top 10 Leaderboard</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       color: #333;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .leaderboard {
+
+    .container {
       max-width: 600px;
       margin: 0 auto;
+      padding: 20px;
     }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .leaderboard-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 0;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .leaderboard-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .leaderboard {
+      list-style: none;
+    }
+
     .entry {
       display: flex;
       align-items: center;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+      position: relative;
     }
-    .entry img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+
+    .entry:last-child {
+      border-bottom: none;
+    }
+
+    .entry:hover {
+      background: rgba(102, 126, 234, 0.05);
+      transform: translateX(5px);
+    }
+
+    .rank {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #667eea;
+      width: 40px;
+      text-align: center;
       margin-right: 15px;
+    }
+
+    .entry:nth-child(1) .rank {
+      color: #FFD700;
+      font-size: 1.8rem;
+    }
+
+    .entry:nth-child(2) .rank {
+      color: #C0C0C0;
+      font-size: 1.7rem;
+    }
+
+    .entry:nth-child(3) .rank {
+      color: #CD7F32;
+      font-size: 1.6rem;
+    }
+
+    .profile-pic {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       object-fit: cover;
+      border: 3px solid #667eea;
+      margin-right: 20px;
+      transition: transform 0.3s ease;
     }
-    .entry .name {
-      font-weight: bold;
-      flex: 1;
+
+    .entry:hover .profile-pic {
+      transform: scale(1.1);
     }
-    .entry .score {
-      font-size: 18px;
-      color: #28a745;
+
+    .entry:nth-child(1) .profile-pic {
+      border-color: #FFD700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .entry:nth-child(2) .profile-pic {
+      border-color: #C0C0C0;
+      box-shadow: 0 0 15px rgba(192, 192, 192, 0.3);
+    }
+
+    .entry:nth-child(3) .profile-pic {
+      border-color: #CD7F32;
+      box-shadow: 0 0 15px rgba(205, 127, 50, 0.3);
+    }
+
+    .details {
+      flex-grow: 1;
+    }
+
+    .name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .score-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score {
+      font-size: 1.1rem;
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    .stamps {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .crown {
+      position: absolute;
+      right: 20px;
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .entry:nth-child(1) .crown {
+      opacity: 1;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .error {
+      text-align: center;
+      padding: 40px;
+      color: #e74c3c;
+      font-size: 1.1rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: white;
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .entry {
+        padding: 15px;
+      }
+
+      .profile-pic {
+        width: 50px;
+        height: 50px;
+      }
+
+      .name {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📸 Top 10 Leaderboard</h1>
-  <div class="leaderboard" id="leaderboard">Loading...</div>
+  <div class="container">
+    <div class="header">
+      <h1>🏆 Top 10 Leaderboard</h1>
+      <p>Discover, Complete, Conquer</p>
+    </div>
 
-  <!-- CloudKit JS -->
+    <div class="leaderboard-card">
+      <div class="leaderboard-header">
+        📸 Photo Challenge Champions
+      </div>
+      <ul class="leaderboard" id="leaderboard">
+        <div class="loading">Loading champions...</div>
+      </ul>
+    </div>
+
+    <div class="footer">
+      Powered by Top 10 • KeyNine Studios
+    </div>
+  </div>
+
   <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
   <script>
     CloudKit.configure({
@@ -62,21 +259,19 @@
     });
 
     const db = CloudKit.getDefaultContainer().publicCloudDatabase;
-
-    // Hardcoded users with display name and recordName
+    
     const users = [
-      { name: "Kehoe", id: "user_8017078254", profilePic: "https://example.com/alice.jpg" },
-      { name: "Mark", id: "user_7035894154", profilePic: "https://example.com/bob.jpg" },
-      { name: "Sam", id: "user_5032904959", profilePic: "https://example.com/charlie.jpg" }
+      { name: "Kehoe", id: "user_8017078254", profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+      { name: "Mark", id: "user_7035894154", profilePic: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+      { name: "Sam", id: "user_5032904959", profilePic: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" }
     ];
 
     async function buildLeaderboard() {
-      const leaderboardDiv = document.getElementById("leaderboard");
-      leaderboardDiv.innerHTML = "Loading...";
-
+      const leaderboardElement = document.getElementById("leaderboard");
+      
       try {
         const results = [];
-
+        
         for (let user of users) {
           const photoRes = await db.performQuery({
             recordType: "Top10PhotoEntries",
@@ -86,37 +281,59 @@
               fieldValue: { value: { recordName: user.id, type: "REFERENCE" } }
             }]
           });
-
-          const score = photoRes.records.length * 3;
+          
+          const photoCount = photoRes.records.length;
+          const score = photoCount * 3;
+          
           results.push({
             username: user.name,
             profilePic: user.profilePic,
-            score
+            score: score,
+            photoCount: photoCount
           });
         }
 
-        // Sort by score descending
+        // Sort by score (highest first)
         results.sort((a, b) => b.score - a.score);
 
-        leaderboardDiv.innerHTML = "";
-        results.forEach((entry, i) => {
-          const div = document.createElement("div");
-          div.className = "entry";
-          div.innerHTML = `
-            <img src="${entry.profilePic}" alt="Profile picture">
-            <div class="name">${i+1}. ${entry.username}</div>
-            <div class="score">${entry.score}</div>
+        // Clear loading message
+        leaderboardElement.innerHTML = "";
+
+        // Create leaderboard entries
+        results.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.className = "entry";
+          
+          const rankNumber = index + 1;
+          const crownEmoji = rankNumber === 1 ? "👑" : "";
+          
+          li.innerHTML = `
+            <div class="rank">${rankNumber}</div>
+            <img src="${entry.profilePic}" alt="${entry.username}" class="profile-pic">
+            <div class="details">
+              <div class="name">${entry.username}</div>
+              <div class="score-container">
+                <div class="score">${entry.score} points</div>
+                <div class="stamps">${entry.photoCount} photos</div>
+              </div>
+            </div>
+            <div class="crown">${crownEmoji}</div>
           `;
-          leaderboardDiv.appendChild(div);
+          
+          leaderboardElement.appendChild(li);
         });
 
-      } catch (err) {
-        console.error("Error loading leaderboard:", err);
-        leaderboardDiv.innerHTML = "⚠️ Failed to load leaderboard.";
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        leaderboardElement.innerHTML = '<div class="error">⚠️ Unable to load leaderboard data</div>';
       }
     }
 
+    // Load leaderboard when page loads
     buildLeaderboard();
+
+    // Optional: Refresh every 30 seconds
+    setInterval(buildLeaderboard, 30000);
   </script>
 </body>
 </html>
