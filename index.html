@@ -54,34 +54,48 @@
     // Configure CloudKit with your API token
     CloudKit.configure({
       containers: [{
-        containerIdentifier: 'iCloud.keyninestudios.topten', // CHANGE THIS to your container ID
+        containerIdentifier: 'iCloud.keyninestudios.topten',
         apiTokenAuth: {
           apiToken: '346a7cfef02d0ca86c0f4d45b6c82c8c810000386287ac8cd9618680d6a001a1'
         },
-        environment: 'production' // or 'production'
+        environment: 'production'
       }]
     });
 
     const container = CloudKit.getDefaultContainer();
     const db = container.publicCloudDatabase;
 
+    // Hardcoded list of users to show
+    const userIDsToShow = [
+      "user_8017078254",
+      "user_7035894154",
+      "user_5032904959"
+    ];
+
     async function buildLeaderboard() {
       const leaderboardDiv = document.getElementById("leaderboard");
       leaderboardDiv.innerHTML = "Loading...";
+      const results = [];
 
       try {
-        // Fetch all users
-        const userRes = await db.performQuery({ recordType: "AppUser" });
-        const users = userRes.records;
+        for (let userID of userIDsToShow) {
+          // Fetch AppUser record
+          const userRes = await db.performQuery({
+            recordType: "AppUser",
+            filterBy: [{
+              fieldName: "recordName",
+              comparator: "EQUALS",
+              fieldValue: { value: userID }
+            }],
+            resultsLimit: 1
+          });
+          const user = userRes.records[0];
+          if (!user) continue;
 
-        const results = [];
-
-        for (let user of users) {
-          const userID = user.recordName;
           const username = user.fields.username?.value || "Unknown";
-          const profilePic = user.fields.profilePic?.value.downloadURL || "";
+          const profilePic = user.fields.profilePicture?.value.downloadURL || "";
 
-          // Fetch photo entries for this user
+          // Count Top10PhotoEntries for this user
           const photoRes = await db.performQuery({
             recordType: "Top10PhotoEntries",
             filterBy: [{
@@ -92,12 +106,7 @@
           });
 
           const score = (photoRes.records.length * 3);
-
-          results.push({
-            username,
-            profilePic,
-            score
-          });
+          results.push({ username, profilePic, score });
         }
 
         // Sort leaderboard by score
