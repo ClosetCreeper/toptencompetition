@@ -51,7 +51,6 @@
   <!-- CloudKit JS -->
   <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
   <script>
-    // Configure CloudKit with your API token
     CloudKit.configure({
       containers: [{
         containerIdentifier: 'iCloud.keyninestudios.topten',
@@ -62,57 +61,43 @@
       }]
     });
 
-    const container = CloudKit.getDefaultContainer();
-    const db = container.publicCloudDatabase;
+    const db = CloudKit.getDefaultContainer().publicCloudDatabase;
 
-    // Hardcoded list of users to show
-    const userIDsToShow = [
-      "user_8017078254",
-      "user_7035894154",
-      "user_5032904959"
+    // Hardcoded users with display name and recordName
+    const users = [
+      { name: "Kehoe", id: "user_8017078254", profilePic: "https://example.com/alice.jpg" },
+      { name: "Mark", id: "user_7035894154", profilePic: "https://example.com/bob.jpg" },
+      { name: "Sam", id: "user_5032904959", profilePic: "https://example.com/charlie.jpg" }
     ];
 
     async function buildLeaderboard() {
       const leaderboardDiv = document.getElementById("leaderboard");
       leaderboardDiv.innerHTML = "Loading...";
-      const results = [];
 
       try {
-        for (let userID of userIDsToShow) {
-          // Fetch AppUsers record
-          const userRes = await db.performQuery({
-            recordType: "AppUsers",
-            filterBy: [{
-              fieldName: "recordName",
-              comparator: "EQUALS",
-              fieldValue: { value: userID }
-            }],
-            resultsLimit: 1
-          });
-          const user = userRes.records[0];
-          if (!user) continue;
+        const results = [];
 
-          const username = user.fields.username?.value || "Unknown";
-          const profilePic = user.fields.profilePicture?.value.downloadURL || "";
-
-          // Count Top10PhotoEntries for this user
+        for (let user of users) {
           const photoRes = await db.performQuery({
             recordType: "Top10PhotoEntries",
             filterBy: [{
               fieldName: "user",
               comparator: "EQUALS",
-              fieldValue: { value: { recordName: userID } }
+              fieldValue: { value: { recordName: user.id, type: "REFERENCE" } }
             }]
           });
 
-          const score = (photoRes.records.length * 3);
-          results.push({ username, profilePic, score });
+          const score = photoRes.records.length * 3;
+          results.push({
+            username: user.name,
+            profilePic: user.profilePic,
+            score
+          });
         }
 
-        // Sort leaderboard by score
+        // Sort by score descending
         results.sort((a, b) => b.score - a.score);
 
-        // Render leaderboard
         leaderboardDiv.innerHTML = "";
         results.forEach((entry, i) => {
           const div = document.createElement("div");
