@@ -79,9 +79,9 @@
 
       try {
         for (let userID of userIDsToShow) {
-          // Fetch AppUser record
+          // Fetch AppUsers record
           const userRes = await db.performQuery({
-            recordType: "AppUser",
+            recordType: "AppUsers",
             filterBy: [{
               fieldName: "recordName",
               comparator: "EQUALS",
