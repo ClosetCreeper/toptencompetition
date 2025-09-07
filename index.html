@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Top 10 Leaderboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .leaderboard {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .entry {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .entry img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 15px;
+      object-fit: cover;
+    }
+    .entry .name {
+      font-weight: bold;
+      flex: 1;
+    }
+    .entry .score {
+      font-size: 18px;
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Top 10 Leaderboard</h1>
+  <div class="leaderboard" id="leaderboard">Loading...</div>
+
+  <!-- CloudKit JS -->
+  <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
+  <script>
+    // Configure CloudKit with your API token
+    CloudKit.configure({
+      containers: [{
+        containerIdentifier: 'iCloud.com.your.container', // CHANGE THIS to your container ID
+        apiTokenAuth: {
+          apiToken: 'd974f0fc75bcbcf5e41dc2d61fd24b8b88299299213dfb3e27858b1f3490985f'
+        },
+        environment: 'development' // or 'production'
+      }]
+    });
+
+    const container = CloudKit.getDefaultContainer();
+    const db = container.publicCloudDatabase;
+
+    async function buildLeaderboard() {
+      const leaderboardDiv = document.getElementById("leaderboard");
+      leaderboardDiv.innerHTML = "Loading...";
+
+      try {
+        // Fetch all users
+        const userRes = await db.performQuery({ recordType: "AppUser" });
+        const users = userRes.records;
+
+        const results = [];
+
+        for (let user of users) {
+          const userID = user.recordName;
+          const username = user.fields.username?.value || "Unknown";
+          const profilePic = user.fields.profilePic?.value.downloadURL || "";
+
+          // Fetch photo entries for this user
+          const photoRes = await db.performQuery({
+            recordType: "Top10PhotoEntries",
+            filterBy: [{
+              fieldName: "user",
+              comparator: "EQUALS",
+              fieldValue: { value: { recordName: userID } }
+            }]
+          });
+
+          const score = (photoRes.records.length * 3);
+
+          results.push({
+            username,
+            profilePic,
+            score
+          });
+        }
+
+        // Sort leaderboard by score
+        results.sort((a, b) => b.score - a.score);
+
+        // Render leaderboard
+        leaderboardDiv.innerHTML = "";
+        results.forEach((entry, i) => {
+          const div = document.createElement("div");
+          div.className = "entry";
+          div.innerHTML = `
+            <img src="${entry.profilePic}" alt="Profile picture">
+            <div class="name">${i+1}. ${entry.username}</div>
+            <div class="score">${entry.score}</div>
+          `;
+          leaderboardDiv.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error("Error loading leaderboard:", err);
+        leaderboardDiv.innerHTML = "⚠️ Failed to load leaderboard.";
+      }
+    }
+
+    buildLeaderboard();
+  </script>
+</body>
+</html>
