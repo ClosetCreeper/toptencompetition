@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 10 Leaderboard</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .leaderboard-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .leaderboard-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .leaderboard {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .entry:last-child {
+      border-bottom: none;
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 2px solid #667eea;
+    }
+
+    .name {
+      flex-grow: 1;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .status {
+      font-size: 1.5rem;
+    }
+
+    .status.complete {
+      color: green;
+    }
+
+    .status.incomplete {
+      color: red;
+    }
+
+    .copy-btn {
+      display: block;
+      margin: 10px auto 20px;
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #5563d9;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: white;
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏆 Top 10 Leaderboard</h1>
+      <p>Completion Status</p>
+    </div>
+
+    <button class="copy-btn" onclick="copyCompleted()">📋 Copy Completed Names</button>
+
+    <div class="leaderboard-card">
+      <div class="leaderboard-header">📸 Completion Tracker</div>
+      <ul class="leaderboard" id="leaderboard">
+        <div class="loading">Loading data...</div>
+      </ul>
+    </div>
+
+    <div class="footer">
+      Powered by Top 10 • KeyNine Studios
+    </div>
+  </div>
+
+  <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
+  <script>
+    CloudKit.configure({
+      containers: [{
+        containerIdentifier: 'iCloud.keyninestudios.topten',
+        apiTokenAuth: {
+          apiToken: '346a7cfef02d0ca86c0f4d45b6c82c8c810000386287ac8cd9618680d6a001a1'
+        },
+        environment: 'production'
+      }]
+    });
+
+    const db = CloudKit.getDefaultContainer().publicCloudDatabase;
+
+    const users = [
+      { name: "Kehoe", id: "user_8017078254", profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
+      { name: "Mark", id: "user_7035894154", profilePic: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
+      { name: "Sam", id: "user_5032904959", profilePic: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" }
+      { name: "John Doe", id: "user_0000000001", profilePic: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" }
+    ];
+
+    async function buildLeaderboard() {
+      const leaderboardElement = document.getElementById("leaderboard");
+      leaderboardElement.innerHTML = '<div class="loading">Loading data...</div>';
+
+      try {
+        const results = [];
+
+        for (let user of users) {
+          const res = await db.performQuery({
+            recordType: "Top10UserProgress",
+            filterBy: [{
+              fieldName: "user",
+              comparator: "EQUALS",
+              fieldValue: { value: { recordName: user.id, type: "REFERENCE" } }
+            }]
+          });
+
+          const completed = res.records.length > 0;
+
+          results.push({
+            username: user.name,
+            profilePic: user.profilePic,
+            completed
+          });
+        }
+
+        leaderboardElement.innerHTML = "";
+
+        results.forEach((entry) => {
+          const li = document.createElement("li");
+          li.className = "entry";
+          li.innerHTML = `
+            <img src="${entry.profilePic}" alt="${entry.username}" class="profile-pic">
+            <div class="name">${entry.username}</div>
+            <div class="status ${entry.completed ? "complete" : "incomplete"}">
+              ${entry.completed ? "✔️" : "❌"}
+            </div>
+          `;
+          leaderboardElement.appendChild(li);
+        });
+
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        leaderboardElement.innerHTML = '<div class="error">⚠️ Unable to load leaderboard data</div>';
+      }
+    }
+
+    function copyCompleted() {
+      const completedNames = Array.from(document.querySelectorAll(".status.complete"))
+        .map(status => status.parentElement.querySelector(".name").textContent);
+
+      if (completedNames.length === 0) {
+        alert("No completed users to copy.");
+        return;
+      }
+
+      navigator.clipboard.writeText(completedNames.join("\n")).then(() => {
+        alert("Copied completed names to clipboard!");
+      });
+    }
+
+    buildLeaderboard();
+    setInterval(buildLeaderboard, 30000);
+  </script>
+</body>
+</html>
