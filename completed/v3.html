@@ -302,7 +302,7 @@
     const redirectUri = window.location.origin + window.location.pathname;
     const scope = "openid profile email";
     const nonce = generateNonce(); // MUST include nonce
-    const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
+    const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
     window.location.href = authUrl;
   });
 
