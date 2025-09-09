@@ -288,6 +288,15 @@
     }
   }
 
+  function generateNonce(length = 16) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   // --- ONELOGIN SSO ---
   document.getElementById("adminLogin").addEventListener("click", async () => {
     try {
@@ -295,6 +304,7 @@
       const redirectUri = window.location.origin + window.location.pathname;
       const scope = "openid profile email";
       const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
+      const nonce = generateNonce();
       window.location.href = authUrl;
     } catch (err) {
       console.error("OneLogin login error:", err);
