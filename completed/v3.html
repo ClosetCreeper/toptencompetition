@@ -151,8 +151,7 @@
   </div>
 
   <div class="footer">
-    <a href="#" id="adminLogin">ADMIN LOGIN</a><br>
-    <button id="adminLogin" class="btn" style="background:#FF4C4C;">ADMIN LOGIN</button>
+    <button id="adminLoginBtn" class="btn" style="background:#FF4C4C;">ADMIN LOGIN</button>
     Powered by Top 10 • KeyNine Studios
   </div>
 </div>
@@ -298,19 +297,15 @@
   }
 
   // --- ONELOGIN SSO ---
-  document.getElementById("adminLogin").addEventListener("click", async () => {
-    try {
-      const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669";
-      const redirectUri = window.location.origin + window.location.pathname;
-      const scope = "openid profile email";
-      const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
-      const nonce = generateNonce();
-      window.location.href = authUrl;
-    } catch (err) {
-      console.error("OneLogin login error:", err);
-      alert("Login failed.");
-    }
+  document.getElementById("adminLoginBtn").addEventListener("click", () => {
+    const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669"; // your OneLogin client ID
+    const redirectUri = window.location.origin + window.location.pathname;
+    const scope = "openid profile email";
+    const nonce = generateNonce(); // MUST include nonce
+    const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
+    window.location.href = authUrl;
   });
+
 
   window.addEventListener("load", () => {
     if (window.location.hash) {
