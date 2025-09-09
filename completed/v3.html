@@ -5,132 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Top 10 Leaderboard</title>
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-    margin: 0;
-  }
-
-  .container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .header {
-    text-align: center;
-    color: white;
-    margin-bottom: 20px;
-  }
-
-  .header h1 {
-    font-size: 2rem;
-    margin-bottom: 5px;
-  }
-
-  .leaderboard-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-
-  .leaderboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
-
-  .leaderboard {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .entry {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .entry:last-child {
-    border-bottom: none;
-  }
-
-  .avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-
-  .name {
-    flex-grow: 1;
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-
-  .status {
-    font-size: 1.5rem;
-  }
-
-  .status.complete {
-    color: green;
-  }
-
-  .status.incomplete {
-    color: red;
-  }
-
-  .btn {
-    display: block;
-    margin: 10px auto 20px;
-    padding: 10px 20px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s ease;
-  }
-
-  .btn:hover {
-    background: #5563d9;
-  }
-
-  .remove-btn {
-    margin-left: 10px;
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-
-  .footer {
-    text-align: center;
-    margin-top: 30px;
-    color: white;
-    opacity: 0.8;
-    font-size: 0.9rem;
-  }
-
-  .hidden {
-    display: none;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; margin: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+  .header { text-align: center; color: white; margin-bottom: 20px; }
+  .header h1 { font-size: 2rem; margin-bottom: 5px; }
+  .leaderboard-card { background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+  .leaderboard-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+  .leaderboard { list-style: none; margin: 0; padding: 0; }
+  .entry { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; }
+  .entry:last-child { border-bottom: none; }
+  .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; }
+  .name { flex-grow: 1; font-size: 1.2rem; font-weight: 500; }
+  .status { font-size: 1.5rem; }
+  .status.complete { color: green; }
+  .status.incomplete { color: red; }
+  .btn { display: block; margin: 10px auto 20px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: background 0.2s ease; }
+  .btn:hover { background: #5563d9; }
+  .remove-btn { margin-left: 10px; cursor: pointer; color: red; font-weight: bold; font-size: 1.2rem; }
+  .footer { text-align: center; margin-top: 30px; color: white; opacity: 0.8; font-size: 0.9rem; }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -151,52 +44,14 @@
   </div>
 
   <div class="footer">
-    const adminBtn = document.getElementById("adminLoginBtn");
-    
-    function updateAdminButton() {
-      if (isAdmin) {
-        adminBtn.textContent = "SIGN OUT";
-        adminBtn.style.background = "#FF4C4C"; // optional styling
-      } else {
-        adminBtn.textContent = "ADMIN LOGIN";
-        adminBtn.style.background = "#667eea";
-      }
-    }
-    
-    // handle click
-    adminBtn.addEventListener("click", () => {
-      if (isAdmin) {
-        // SIGN OUT
-        isAdmin = false;
-        document.getElementById("addBtn").classList.add("hidden"); // hide admin buttons
-        buildLeaderboard(); // rebuild without remove buttons
-        updateAdminButton();
-        
-        // optional: remove ?code=... from URL
-        const url = new URL(window.location);
-        url.searchParams.delete("code");
-        window.history.replaceState({}, document.title, url);
-      } else {
-        // SIGN IN (redirect to OneLogin)
-        const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669";
-        const redirectUri = window.location.origin + window.location.pathname;
-        const scope = "openid profile email";
-        const nonce = generateNonce();
-        const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
-        window.location.href = authUrl;
-      }
-    });
-
-// call on page load
-updateAdminButton();
-
-    Powered by Top 10 • KeyNine Studios
+    <button id="adminLoginBtn" class="btn" style="background:#FF4C4C;">ADMIN LOGIN</button>
+    <p>Powered by Top 10 • KeyNine Studios</p>
   </div>
 </div>
 
 <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
 <script>
-  // --- CLOUDKIT ---
+  // --- CONFIG ---
   CloudKit.configure({
     containers: [{
       containerIdentifier: 'iCloud.keyninestudios.topten',
@@ -205,14 +60,54 @@ updateAdminButton();
     }]
   });
   const db = CloudKit.getDefaultContainer().publicCloudDatabase;
-
-  // --- AIRTABLE ---
-  const AIRTABLE_API_KEY = "patpk2ScUIUatA4ne.d9cbf4a1faa4f92cb6571179f73ae8664a43954625950357459ab65144641acf"; // ← replace this
+  const AIRTABLE_API_KEY = "patpk2ScUIUatA4ne.d9cbf4a1faa4f92cb6571179f73ae8664a43954625950357459ab65144641acf";
   const BASE_ID = "appzk4FwWFOvq5yu2";
-  const TABLE_NAME = "Table 1"; // or tblilnFEtG6CphDJ8
+  const TABLE_NAME = "Table 1";
 
   let isAdmin = false;
 
+  // --- HELPER FUNCTIONS ---
+  function generateNonce(length = 16) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return result;
+  }
+
+  function updateAdminButton() {
+    const adminBtn = document.getElementById("adminLoginBtn");
+    if (isAdmin) {
+      adminBtn.textContent = "SIGN OUT";
+      adminBtn.style.background = "#FF4C4C";
+    } else {
+      adminBtn.textContent = "ADMIN LOGIN";
+      adminBtn.style.background = "#667eea";
+    }
+  }
+
+  // --- LOGIN/LOGOUT ---
+  document.getElementById("adminLoginBtn").addEventListener("click", () => {
+    if (isAdmin) {
+      // SIGN OUT
+      isAdmin = false;
+      document.getElementById("addBtn").classList.add("hidden");
+      buildLeaderboard();
+      updateAdminButton();
+      const url = new URL(window.location);
+      url.searchParams.delete("code");
+      window.history.replaceState({}, document.title, url);
+    } else {
+      // REDIRECT TO ONELOGIN
+      const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669";
+      const redirectUri = window.location.origin + window.location.pathname;
+      const scope = "openid profile email";
+      const nonce = generateNonce();
+      const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
+      window.location.href = authUrl;
+    }
+  });
+
+  // --- AIRTABLE FUNCTIONS ---
   async function loadUsersFromAirtable() {
     try {
       const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
@@ -224,25 +119,8 @@ updateAdminButton();
         id: "user_" + record.fields["Phone Number"],
         name: record.fields["DisplayName"] || "Unknown"
       }));
-    } catch (err) {
-      console.error("Error fetching Airtable:", err);
-      return [];
-    }
+    } catch (err) { console.error("Error fetching Airtable:", err); return []; }
   }
-
-  window.addEventListener("load", () => {
-    // Check for either an access token or an authorization code in the URL
-    const urlParams = new URLSearchParams(window.location.search); // use search for ?code=...
-    const code = urlParams.get("code");
-
-    if (code) {
-      // treat this as "admin"
-      isAdmin = true;
-      document.getElementById("addBtn").classList.remove("hidden");
-      buildLeaderboard();
-    }
-  });
-
 
   async function addPerson(displayName, phoneNumber) {
     try {
@@ -254,20 +132,17 @@ updateAdminButton();
     } catch (err) { console.error("Error adding person:", err); }
   }
 
-  async function removePerson(phoneNumber) {
-    try {
-      const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={Phone Number}='${phoneNumber}'`, {
-        headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
-      });
-      const data = await res.json();
-      if (data.records && data.records.length > 0) {
-        const recordId = data.records[0].id;
-        await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${recordId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
-        });
-      }
-    } catch (err) { console.error("Error removing person:", err); }
+  async function removeUser(name) {
+    if (!confirm(`Remove ${name}?`)) return;
+    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={DisplayName}='${name}'`, {
+      headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
+    });
+    const data = await res.json();
+    if (data.records.length) {
+      const recordId = data.records[0].id;
+      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${recordId}`, { method: "DELETE", headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } });
+      buildLeaderboard();
+    }
   }
 
   function promptAddPerson() {
@@ -289,15 +164,12 @@ updateAdminButton();
     leaderboard.innerHTML = '<div class="loading">Loading data...</div>';
     const users = await loadUsersFromAirtable();
     const results = [];
+
     for (let user of users) {
       try {
         const res = await db.performQuery({
           recordType: "Top10UserProgress",
-          filterBy: [{
-            fieldName: "user",
-            comparator: "EQUALS",
-            fieldValue: { value: { recordName: user.id, type: "REFERENCE" } }
-          }]
+          filterBy: [{ fieldName: "user", comparator: "EQUALS", fieldValue: { value: { recordName: user.id, type: "REFERENCE" } } }]
         });
         const completed = res.records.some(r => r.fields.completedAt);
         results.push({ username: user.name, id: user.id, completed });
@@ -308,13 +180,10 @@ updateAdminButton();
     results.forEach(entry => {
       const li = document.createElement("li");
       li.className = "entry";
-
       const color = getRandomColor(entry.username);
       const avatar = `<div class="avatar" style="background:${color}">${entry.username.charAt(0).toUpperCase()}</div>`;
-
       const removeBtn = isAdmin ? `<span class="remove-btn" onclick="removeUser('${entry.username}')">✖️</span>` : "";
-
-      li.innerHTML = `${avatar}<div class="name">${entry.username}</div><div class="status ${entry.completed ? 'complete':'incomplete'}">${entry.completed ? '✔️':'❌'}</div>${removeBtn}`;
+      li.innerHTML = `${avatar}<div class="name">${entry.username}</div><div class="status ${entry.completed?'complete':'incomplete'}">${entry.completed?'✔️':'❌'}</div>${removeBtn}`;
       leaderboard.appendChild(li);
     });
   }
@@ -326,55 +195,19 @@ updateAdminButton();
     else alert("No completed users.");
   }
 
-  async function removeUser(name) {
-    if (!confirm(`Remove ${name}?`)) return;
-    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={DisplayName}='${name}'`, {
-      headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
-    });
-    const data = await res.json();
-    if (data.records.length) {
-      const recordId = data.records[0].id;
-      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${recordId}`, { method: "DELETE", headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } });
-      buildLeaderboard();
-    }
-  }
-
-  function generateNonce(length = 16) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
-  // --- ONELOGIN SSO ---
-  document.getElementById("adminLoginBtn").addEventListener("click", () => {
-    const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669"; // your OneLogin client ID
-    const redirectUri = window.location.origin + window.location.pathname;
-    const scope = "openid profile email";
-    const nonce = generateNonce(); // MUST include nonce
-    const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
-    window.location.href = authUrl;
-  });
-
-
-  window.addEventListener("load", () => {
-    if (window.location.hash) {
-      const hash = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hash.get("access_token");
-      if (accessToken) {
-        localStorage.setItem("onelogin_token", accessToken);
-        isAdmin = true;
-        document.getElementById("addBtn").classList.remove("hidden");
-        buildLeaderboard();
-      }
-    }
-  });
-
   // --- INIT ---
-  buildLeaderboard();
-  setInterval(buildLeaderboard, 30000);
+  window.addEventListener("load", () => {
+    // Check for admin code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    if (code) {
+      isAdmin = true;
+      document.getElementById("addBtn").classList.remove("hidden");
+    }
+    updateAdminButton();
+    buildLeaderboard();
+    setInterval(buildLeaderboard, 30000);
+  });
 </script>
 </body>
 </html>
