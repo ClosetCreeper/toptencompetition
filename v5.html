@@ -56,15 +56,15 @@
   CloudKit.configure({
     containers: [{
       containerIdentifier: 'iCloud.keyninestudios.topten',
-      apiTokenAuth: { apiToken: 'YOUR_API_TOKEN_HERE' },
+      apiTokenAuth: { apiToken: '346a7cfef02d0ca86c0f4d45b6c82c8c810000386287ac8cd9618680d6a001a1' },
       environment: 'production'
     }]
   });
   const db = CloudKit.getDefaultContainer().publicCloudDatabase;
 
   // Airtable config
-  const AIRTABLE_API_KEY = "YOUR_AIRTABLE_KEY";
-  const BASE_ID = "YOUR_BASE_ID";
+  const AIRTABLE_API_KEY = "patpk2ScUIUatA4ne.d9cbf4a1faa4f92cb6571179f73ae8664a43954625950357459ab65144641acf";
+  const BASE_ID = "appzk4FwWFOvq5yu2";
   const TABLE_NAME = "Table 1";
 
   let isAdmin = false; // CEO users only
@@ -103,7 +103,7 @@
       window.history.replaceState({}, document.title, url);
     } else {
       // REDIRECT TO ONELOGIN
-      const clientId = "YOUR_ONLOGIN_CLIENT_ID";
+      const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669";
       const redirectUri = window.location.origin + window.location.pathname;
       const scope = "openid profile email";
       const nonce = generateNonce();
