@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top 10 Leaderboard</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; margin: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+  .header { text-align: center; color: white; margin-bottom: 20px; }
+  .header h1 { font-size: 2rem; margin-bottom: 5px; }
+  .leaderboard-card { background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+  .leaderboard-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+  .leaderboard { list-style: none; margin: 0; padding: 0; }
+  .entry { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; }
+  .entry:last-child { border-bottom: none; }
+  .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; }
+  .name { flex-grow: 1; font-size: 1.2rem; font-weight: 500; }
+  .status { font-size: 1.5rem; }
+  .status.complete { color: green; }
+  .status.incomplete { color: red; }
+  .btn { display: block; margin: 10px auto 20px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: background 0.2s ease; }
+  .btn:hover { background: #5563d9; }
+  .remove-btn { margin-left: 10px; cursor: pointer; color: red; font-weight: bold; font-size: 1.2rem; }
+  .footer { text-align: center; margin-top: 30px; color: white; opacity: 0.8; font-size: 0.9rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏆 Top 10 Competitions</h1>
+    <h2>Congrats! You found a secret part of our website!<h2>
+    <p>Just kidding, but seriously, as competitions are not a public part of the Top 10 app yet, this is reserved for private events and custom Top 10 sponsered work, also this website contains specific data, so in order to keep our customers safe, this website is locked. If you have a valid reason of coming here, please check the URL and try again.</p>
+  </div>
+
+  <div class="footer">
+    <button id="adminLoginBtn" class="btn" style="background:#FF4C4C;">ADMIN LOGIN</button>
+    <p>Powered by Top 10 • KeyNine Studios</p>
+  </div>
+</div>
+</body>
+</html>
