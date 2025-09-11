@@ -1,0 +1,179 @@
+<script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
+<script>
+  // --- CONFIG ---
+  CloudKit.configure({
+    containers: [{
+      containerIdentifier: 'iCloud.keyninestudios.topten',
+      apiTokenAuth: { apiToken: '346a7cfef02d0ca86c0f4d45b6c82c8c810000386287ac8cd9618680d6a001a1' },
+      environment: 'production'
+    }]
+  });
+  const db = CloudKit.getDefaultContainer().publicCloudDatabase;
+  const AIRTABLE_API_KEY = "patpk2ScUIUatA4ne.d9cbf4a1faa4f92cb6571179f73ae8664a43954625950357459ab65144641acf";
+  const BASE_ID = "appzk4FwWFOvq5yu2";
+  const TABLE_NAME = "Table 1";
+
+  let isAdmin = false;
+
+  // --- HELPER FUNCTIONS ---
+  function generateNonce(length = 16) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return result;
+  }
+
+  function updateAdminButton() {
+    const adminBtn = document.getElementById("adminLoginBtn");
+    if (isAdmin) {
+      adminBtn.textContent = "SIGN OUT";
+      adminBtn.style.background = "#FF4C4C";
+    } else {
+      adminBtn.textContent = "ADMIN LOGIN";
+      adminBtn.style.background = "#667eea";
+    }
+  }
+
+  // --- LOGIN/LOGOUT ---
+  document.getElementById("adminLoginBtn").addEventListener("click", () => {
+    if (isAdmin) {
+      // SIGN OUT
+      isAdmin = false;
+      document.getElementById("addBtn").classList.add("hidden");
+      buildLeaderboard();
+      updateAdminButton();
+      const url = new URL(window.location);
+      url.searchParams.delete("code");
+      window.history.replaceState({}, document.title, url);
+    } else {
+      // REDIRECT TO ONELOGIN
+      const clientId = "a3407f00-7003-013e-8ded-2f1fc5c0c87b251669";
+      const redirectUri = window.location.origin + window.location.pathname;
+      const scope = "openid profile email";
+      const nonce = generateNonce();
+      const authUrl = `https://keyninestudios.onelogin.com/oidc/2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&nonce=${nonce}`;
+      window.location.href = authUrl;
+    }
+  });
+
+  // --- AIRTABLE FUNCTIONS ---
+  async function loadUsersFromAirtable() {
+    try {
+      const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
+        headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
+      });
+      const data = await res.json();
+      if (!data.records) throw new Error("No records found");
+      return data.records.map(record => ({
+        id: "user_" + record.fields["Phone Number"],
+        name: record.fields["DisplayName"] || "Unknown"
+      }));
+    } catch (err) { console.error("Error fetching Airtable:", err); return []; }
+  }
+
+  async function addPerson(displayName, phoneNumber) {
+    try {
+      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ records: [{ fields: { "DisplayName": displayName, "Phone Number": phoneNumber } }] })
+      });
+    } catch (err) { console.error("Error adding person:", err); }
+  }
+
+  async function removeUser(name) {
+    if (!confirm(`Remove ${name}?`)) return;
+    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={DisplayName}='${name}'`, {
+      headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
+    });
+    const data = await res.json();
+    if (data.records.length) {
+      const recordId = data.records[0].id;
+      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${recordId}`, { method: "DELETE", headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } });
+      buildLeaderboard();
+    }
+  }
+
+  function promptAddPerson() {
+    const displayName = prompt("Enter Display Name:");
+    if (!displayName) return;
+    const phone = prompt("Enter Phone Number:");
+    if (!phone) return;
+    addPerson(displayName, phone).then(buildLeaderboard);
+  }
+
+  function getRandomColor(seed) {
+    const colors = ["#FF6B6B","#6BCB77","#4D96FF","#FFD93D","#6A4C93","#FF8C42"];
+    let index = seed.split('').reduce((acc,c)=> acc+c.charCodeAt(0),0) % colors.length;
+    return colors[index];
+  }
+
+  async function buildLeaderboard() {
+    const leaderboard = document.getElementById("leaderboard");
+    leaderboard.innerHTML = '<div class="loading">Loading data...</div>';
+    const users = await loadUsersFromAirtable();
+    const results = [];
+
+    for (let user of users) {
+      try {
+        const res = await db.performQuery({
+          recordType: "Top10UserProgress",
+          filterBy: [{ fieldName: "user", comparator: "EQUALS", fieldValue: { value: { recordName: user.id, type: "REFERENCE" } } }]
+        });
+        const completed = res.records.some(r => r.fields.completedAt);
+        results.push({ username: user.name, id: user.id, completed });
+      } catch (err) { console.error(err); }
+    }
+
+    leaderboard.innerHTML = "";
+    results.forEach(entry => {
+      const li = document.createElement("li");
+      li.className = "entry";
+      const color = getRandomColor(entry.username);
+      const avatar = `<div class="avatar" style="background:${color}">${entry.username.charAt(0).toUpperCase()}</div>`;
+      const removeBtn = isAdmin ? `<span class="remove-btn" onclick="removeUser('${entry.username}')">✖️</span>` : "";
+      li.innerHTML = `${avatar}<div class="name">${entry.username}</div><div class="status ${entry.completed?'complete':'incomplete'}">${entry.completed?'✔️':'❌'}</div>${removeBtn}`;
+      leaderboard.appendChild(li);
+    });
+  }
+
+  function copyCompleted() {
+    const completedNames = Array.from(document.querySelectorAll(".status.complete"))
+      .map(s => s.parentElement.querySelector(".name").textContent);
+    if (completedNames.length) navigator.clipboard.writeText(completedNames.join("\n")).then(()=>alert("Copied!"));
+    else alert("No completed users.");
+  }
+
+  // --- INIT + TOKEN HANDLING ---
+  window.addEventListener("load", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      const res = await fetch("/api/callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, redirectUri: window.location.origin + window.location.pathname })
+      });
+      const data = await res.json();
+
+      if (data.id_token) {
+        isAdmin = true;
+        document.getElementById("addBtn").classList.remove("hidden");
+      }
+
+      updateAdminButton();
+      buildLeaderboard();
+
+      // clean URL
+      const url = new URL(window.location);
+      url.searchParams.delete("code");
+      window.history.replaceState({}, document.title, url);
+    } else {
+      updateAdminButton();
+      buildLeaderboard();
+    }
+
+    setInterval(buildLeaderboard, 30000);
+  });
+</script>
