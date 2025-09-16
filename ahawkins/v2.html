@@ -113,25 +113,25 @@
       const data = await res.json();
       if (!data.records) throw new Error("No records found");
       return data.records.map(record => ({
-        id: record.fields["Phone Number"],            // phone is stored
-        name: record.fields["DisplayName"] || "Unknown" // username comes from here
+        id: record.id,
+        name: record.fields["Username"] || "Unknown"
       }));
     } catch (err) { console.error("Error fetching Airtable:", err); return []; }
   }
 
-  async function addPerson(displayName, phoneNumber) {
+  async function addPerson(username) {
     try {
       await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ records: [{ fields: { "DisplayName": displayName, "Phone Number": phoneNumber } }] })
+        body: JSON.stringify({ records: [{ fields: { "Username": username } }] })
       });
     } catch (err) { console.error("Error adding person:", err); }
   }
 
   async function removeUser(name) {
     if (!confirm(`Remove ${name}?`)) return;
-    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={DisplayName}='${name}'`, {
+    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?filterByFormula={Username}='${name}'`, {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
     });
     const data = await res.json();
@@ -143,11 +143,9 @@
   }
 
   function promptAddPerson() {
-    const displayName = prompt("Enter Username:");
-    if (!displayName) return;
-    const phone = prompt("Enter Phone Number:");
-    if (!phone) return;
-    addPerson(displayName, phone).then(buildLeaderboard);
+    const username = prompt("Enter Username:");
+    if (!username) return;
+    addPerson(username).then(buildLeaderboard);
   }
 
   function getRandomColor(seed) {
@@ -168,7 +166,7 @@
         const res = await db.performQuery({
           recordType: "Top10UserProgress",
           filterBy: [{
-            fieldName: "username",               // use username field in CloudKit
+            fieldName: "username",
             comparator: "EQUALS",
             fieldValue: { value: user.name }
           }]
